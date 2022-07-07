@@ -55,8 +55,6 @@ class LifeGame(Matrix):
         #print("cell: {},{} ---- sum: {}, current: {}  so it lives? {}".format(x,y,nextState,currentState,lives))
         return 1 if (nextState == 3) | (nextState - currentState) == 3 else 0
 
-
-
     def nextState(self,borderPattern =[0]):
         nextMatrix = []
         for line in range(self.lines):
