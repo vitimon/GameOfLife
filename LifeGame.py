@@ -89,3 +89,46 @@ class LifeGame(Matrix):
         self.matrix[y][x + 1] = 1
         self.matrix[y + 1][x + 1] = 1
         return self
+
+class BorderlessLifeGame(LifeGame):
+    def __filterCell(self,x,y):
+        if y < -1:
+            raise("Y OUT OF LESSER BOUNDARIES")
+        if y > self.lines:
+            raise("Y OUT OF UPPER BOUNDARIES")
+        if x < -1:
+            raise("X OUT OF LEFTMOST BOUNDARIES")
+        if x > self.columns:
+            raise("X OUT OF RIGHTMOST BOUNDARIES")
+        if y == -1:
+            if x == -1: return self.matrix[-1][-1]
+            if x == self.columns: return self.matrix[-1][0]
+            return self.matrix[-1][x]
+        if x == self.columns:
+            if y == self.lines: return self.matrix[0][0]
+            return self.matrix[y][0]
+        if y == self.lines: 
+            if x == -1: return self.matrix[0][-1]
+            return self.matrix[0][x]
+        if x == -1:
+            return self.matrix[y][-1]
+        return self.matrix[y][x]
+
+    def __cellquence(self,x,y):
+        currentState = self.matrix[y][x]
+        nextState = 0
+        for delta1 in range(-1,2):
+            for delta2 in range(-1,2):
+                nextState += self.__filterCell(x+delta1,y+delta2)
+        #print("cell: {},{} ---- sum: {}, current: {}  so it lives? {}".format(x,y,nextState,currentState,lives))
+        return 1 if (nextState == 3) | (nextState - currentState) == 3 else 0
+
+    def nextState(self):
+        nextMatrix = []
+        for line in range(self.lines):
+            nextMatrix+= [[]]
+            for column in range(self.columns):
+                nextMatrix[line] += [ self.__cellquence(column,line) ]
+        return BorderlessLifeGame(self.lines,self.columns,nextMatrix)
+    
+    

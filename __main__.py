@@ -1,15 +1,15 @@
 from LifeGame import *
 from tkinter import *
 
-gameLines = 10
-gameColumns = 10
+gameLines = 30
+gameColumns = 30
 boardHeight = 600
 boardWidth = 600
 boardBackground = "white"
 cellColor = "black"
 cellHeight = boardHeight/gameLines
 cellWidth = boardWidth/gameColumns
-frameTime = 500
+frameTime = 300
 
 root = Tk()
 root.title("Game Of Life")
@@ -18,7 +18,7 @@ root.geometry('800x640')
 class Board(Canvas):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.boardState = LifeGame(gameLines,gameColumns,initializer="RANDOM")
+        self.boardState = BorderlessLifeGame(gameLines,gameColumns,initializer="RANDOM")
         self.printState()
         self.running = 0
 
@@ -36,25 +36,39 @@ class Board(Canvas):
         if self.running: self.after(frameTime,self.updateState)
 
     def resetBoard(self,event):
-        self.boardState = LifeGame(gameLines,gameColumns,initializer="RANDOM")
+        self.boardState = BorderlessLifeGame(gameLines,gameColumns,initializer="RANDOM")
         self.printState()
         if self.running: self.updateState()
 
     def killBoard(self,event):
-        self.boardState = LifeGame(gameLines,gameColumns,initializer="EMPTY")
+        self.boardState = BorderlessLifeGame(gameLines,gameColumns,initializer="EMPTY")
         self.printState()
         if self.running: self.updateState()
 
     def stoprun(self,event):
         self.running = self.running ^ 1
         if self.running: self.updateState()
+
+    def toggleCell(self,event):
+        self.boardState.matrix[int(event.y/cellHeight)][int(event.x/cellWidth)] ^=1
+        self.printState()
+
+    def advanceState(self,event):
+        self.boardState = self.boardState.nextState()
+        self.printState()
+
+    
         
 commandBar = Frame(root)
-toggleButton = Button(commandBar,text = "RUN - STOP")
+advanceButton = Button(commandBar, text = "[>]")
+toggleButton = Button(commandBar, text = "RUN - STOP")
 resetButton = Button(commandBar, text = "RESET")
 killButton = Button(commandBar, text = "KILL")
 canvas = Board(root, height = boardHeight, width = boardWidth,bg = boardBackground)
 
+canvas.bind('<Button-1>',canvas.toggleCell)
+advanceButton.pack()
+advanceButton.bind('<Button-1>',canvas.advanceState)
 toggleButton.pack()
 toggleButton.bind('<Button-1>', canvas.stoprun)
 resetButton.pack()
